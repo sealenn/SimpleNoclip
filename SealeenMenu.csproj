@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <AssemblyName>SealeenMenu</AssemblyName>
+    <RootNamespace>SealeenMenu</RootNamespace>
+    <Nullable>disable</Nullable>
+    <LangVersion>9.0</LangVersion>
+    <Optimize>true</Optimize>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+
+  <!-- MelonLoader & Unity stubs from NuGet (no game files needed on CI) -->
+  <ItemGroup>
+    <PackageReference Include="MelonLoader.Managed" Version="0.6.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="SealeenMenu.cs" />
+  </ItemGroup>
+
+</Project>
