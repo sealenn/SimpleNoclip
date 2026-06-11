@@ -1,7 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(SealeenDevMenuMod.SealeenMod), "Sealeen Menu", "1.0.0", "Developer")]
+[assembly: MelonInfo(typeof(SealeenDevMenuMod.SealeenMod), "Sealeen Menu", "1.0.0", "SealeenWorks")]
 [assembly: MelonGame(null, null)]
 
 namespace SealeenDevMenuMod
@@ -17,7 +17,7 @@ namespace SealeenDevMenuMod
         private GameObject _localPlayer;
         private MonoBehaviour _fpsController;
         
-        // Переменная для хранения позиции окна
+        // для окна 
         private Rect _windowRect = new Rect(20, 20, 250, 150);
 
         public override void OnUpdate()
@@ -48,7 +48,7 @@ namespace SealeenDevMenuMod
         {
             if (!_showMenu) return;
 
-            // Передаем переменную _windowRect, чтобы позиция обновлялась при перетаскивании
+            // виндоу рект 
             _windowRect = GUILayout.Window(999, _windowRect, DrawConsoleWindow, "Sealeen Menu");
         }
 
@@ -62,19 +62,18 @@ namespace SealeenDevMenuMod
                 if (float.TryParse(_speedInputBuffer, out float parsedSpeed))
                 {
                     _noclipSpeed = parsedSpeed;
-                    LoggerInstance.Msg($"Speed updated to: {_noclipSpeed}");
+                    LoggerInstance.Msg($"local speed {_noclipSpeed}");
                 }
                 else
                 {
-                    LoggerInstance.Warning("Invalid number format!");
+                    LoggerInstance.Warning("invalid format");
                 }
             }
 
             GUILayout.Space(10);
             GUILayout.Label($"Noclip status: {(_flyEnabled ? "ENABLED" : "DISABLED")}");
-            GUILayout.Label("(Press 'V' to toggle fly)");
 
-            // Разрешает перетаскивать окно мышкой за любое свободное место внутри него
+            // драггабельность я хз правда кому она нужна
             GUI.DragWindow();
         }
 
@@ -139,7 +138,7 @@ namespace SealeenDevMenuMod
                 {
                     _fpsController = (MonoBehaviour)current;
                     _localPlayer = _fpsController.gameObject;
-                    LoggerInstance.Msg("Player found!");
+                    LoggerInstance.Msg("true");
                     break;
                 }
             }
