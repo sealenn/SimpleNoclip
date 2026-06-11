@@ -17,7 +17,7 @@ namespace SimpleNoclipMod
 
         private GameObject _localPlayer;
         private MonoBehaviour _fpsController;
-        private Rect _windowRect = new Rect(20, 20, 250, 150);
+        private Rect _windowRect = new Rect(20, 20, 250, 160); // fix
 
         public override void OnUpdate()
         {
@@ -47,20 +47,16 @@ namespace SimpleNoclipMod
         {
             if (!_showMenu) return;
 
-            // shitty
-            // fix
             _windowRect = GUI.Window(999, _windowRect, (GUI.WindowFunction)DrawConsoleWindow, "Sealeen Menu");
         }
 
         private void DrawConsoleWindow(int windowID)
         {
-            // fix
-            GUILayout.BeginVertical();
+            GUI.Label(new Rect(15, 25, 220, 20), "Noclip Speed:");
             
-            GUILayout.Label("Noclip Speed:");
-            _speedInputBuffer = GUILayout.TextField(_speedInputBuffer, 10);
+            _speedInputBuffer = GUI.TextField(new Rect(15, 45, 140, 20), _speedInputBuffer, 10);
 
-            if (GUILayout.Button("Apply"))
+            if (GUI.Button(new Rect(165, 45, 70, 20), "Apply"))
             {
                 if (float.TryParse(_speedInputBuffer, out float parsedSpeed))
                 {
@@ -73,14 +69,13 @@ namespace SimpleNoclipMod
                 }
             }
 
-            GUILayout.Space(10);
-            GUILayout.Label($"Local SN Status: {(_flyEnabled ? "ENABLED" : "DISABLED")}");
-            GUILayout.Label("(Press 'V' to toggle fly)");
+            // Статус Noclip
+            string statusText = $"SN Status: {(_flyEnabled ? "ENABLED" : "DISABLED")}";
+            GUI.Label(new Rect(15, 80, 220, 20), statusText);
+            
+            GUI.Label(new Rect(15, 105, 220, 20), "(Press 'V' to toggle fly)");
 
-            GUILayout.EndVertical();
-
-            // Позволяет перетаскивать окно
-            GUI.DragWindow();
+            GUI.DragWindow(new Rect(0, 0, 250, 20));
         }
 
         private void ToggleNoclip()
@@ -92,7 +87,7 @@ namespace SimpleNoclipMod
 
             if (_localPlayer == null)
             {
-                LoggerInstance.Warning("false!");
+                LoggerInstance.Warning("Player with FPScontroller not found!");
                 return;
             }
 
@@ -103,7 +98,7 @@ namespace SimpleNoclipMod
                 _fpsController.enabled = !_flyEnabled;
             }
 
-            LoggerInstance.Msg($"local status: {_flyEnabled}");
+            LoggerInstance.Msg($"SN status : {_flyEnabled}");
         }
 
         private void MoveInNoclip()
@@ -146,7 +141,7 @@ namespace SimpleNoclipMod
                 {
                     _fpsController = comp;
                     _localPlayer = comp.gameObject;
-                    LoggerInstance.Msg("true");
+                    LoggerInstance.Msg("True!");
                     break;
                 }
             }
