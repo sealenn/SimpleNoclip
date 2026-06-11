@@ -2,13 +2,13 @@ name: Build MelonLoader Mod
 
 on:
   push:
-    branches: [ main ] 
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: windows-latest 
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
@@ -30,4 +30,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: SealeenDevMenu-DLL
-        path: bin/Release/Sealeen.dll
+        path: bin/Release/*.dll # Ищет любой скомпилированный dll файл в этой папке
