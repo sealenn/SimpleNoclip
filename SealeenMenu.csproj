@@ -31,9 +31,8 @@
       <Private>false</Private>
     </Reference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="SealeenMenu.cs" />
-  </ItemGroup>
+<ItemGroup>
+  <Compile Include="SealeenMenu.cs" />
+</ItemGroup>
 
 </Project>
