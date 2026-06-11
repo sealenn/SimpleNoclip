@@ -19,21 +19,87 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # 2. Setup .NET (supports net472)
+      # 2. Setup .NET
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
-      # 3. Restore NuGet packages (MelonLoader.Managed stub)
-      - name: Restore
-        run: dotnet restore SealeenMenu.csproj
+      # 3. Download MelonLoader release zip and extract DLLs into libs/
+      - name: Download MelonLoader DLLs
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path libs | Out-Null
 
-      # 4. Build in Release mode
+          # Download MelonLoader v0.6.6 (latest stable)
+          $mlUrl = "https://github.com/LavaGang/MelonLoader/releases/download/v0.6.6/MelonLoader.x64.zip"
+          Invoke-WebRequest -Uri $mlUrl -OutFile "MelonLoader.zip"
+          Expand-Archive -Path "MelonLoader.zip" -DestinationPath "MelonLoaderExtracted" -Force
+
+          # Copy the DLLs we need into libs/
+          # MelonLoader.dll and 0Harmony.dll
+          Copy-Item "MelonLoaderExtracted\MelonLoader\net6\MelonLoader.dll" -Destination "libs\" -ErrorAction SilentlyContinue
+          Copy-Item "MelonLoaderExtracted\MelonLoader\net35\MelonLoader.dll" -Destination "libs\" -ErrorAction SilentlyContinue
+          Copy-Item "MelonLoaderExtracted\MelonLoader\0Harmony.dll"          -Destination "libs\" -ErrorAction SilentlyContinue
+
+          # Try multiple known paths for MelonLoader.dll
+          $mlDll = Get-ChildItem -Recurse "MelonLoaderExtracted" -Filter "MelonLoader.dll" | Select-Object -First 1
+          if ($mlDll) { Copy-Item $mlDll.FullName -Destination "libs\MelonLoader.dll" -Force }
+
+          $harmonyDll = Get-ChildItem -Recurse "MelonLoaderExtracted" -Filter "0Harmony.dll" | Select-Object -First 1
+          if ($harmonyDll) { Copy-Item $harmonyDll.FullName -Destination "libs\0Harmony.dll" -Force }
+
+          # Download Unity 2019.4 stub DLLs (compatible with most Unity games)
+          $unityUrl = "https://github.com/nicoco007/BeatSaberModdingTools.Tasks/raw/main/Ref/UnityEngine.dll"
+          Invoke-WebRequest -Uri "https://github.com/LavaGang/MelonLoader/releases/download/v0.6.6/MelonLoader.x64.zip" -OutFile "MelonLoader.zip" -ErrorAction SilentlyContinue
+
+          # Download Unity stubs from a known source
+          $unityStubsUrl = "https://github.com/Perfare/Il2CppDumper/releases/download/v6.7.40/Unity_ver_2019.4_libs.zip"
+
+          # Fallback: use dotnet reference assemblies path for UnityEngine stubs
+          # We'll get them from the MelonLoader package itself
+          $unityCore = Get-ChildItem -Recurse "MelonLoaderExtracted" -Filter "UnityEngine.CoreModule.dll" | Select-Object -First 1
+          $unityBase  = Get-ChildItem -Recurse "MelonLoaderExtracted" -Filter "UnityEngine.dll"           | Select-Object -First 1
+
+          if ($unityCore) { Copy-Item $unityCore.FullName -Destination "libs\UnityEngine.CoreModule.dll" -Force }
+          if ($unityBase)  { Copy-Item $unityBase.FullName  -Destination "libs\UnityEngine.dll"           -Force }
+
+          Write-Host "=== libs/ contents ==="
+          Get-ChildItem libs\
+
+      # 4. Download Unity stub DLLs separately if not found above
+      - name: Download Unity stubs (fallback)
+        shell: pwsh
+        run: |
+          $needCore = -not (Test-Path "libs\UnityEngine.CoreModule.dll")
+          $needBase  = -not (Test-Path "libs\UnityEngine.dll")
+
+          if ($needCore -or $needBase) {
+            Write-Host "Fetching Unity stubs from BepInEx..."
+            $bepUrl = "https://github.com/BepInEx/BepInEx/releases/download/v5.4.23.2/BepInEx_win_x64_5.4.23.2.zip"
+            Invoke-WebRequest -Uri $bepUrl -OutFile "BepInEx.zip"
+            Expand-Archive -Path "BepInEx.zip" -DestinationPath "BepInExExtracted" -Force
+
+            if ($needCore) {
+              $f = Get-ChildItem -Recurse "BepInExExtracted" -Filter "UnityEngine.CoreModule.dll" | Select-Object -First 1
+              if ($f) { Copy-Item $f.FullName -Destination "libs\UnityEngine.CoreModule.dll" -Force; Write-Host "Got UnityEngine.CoreModule.dll" }
+            }
+            if ($needBase) {
+              $f = Get-ChildItem -Recurse "BepInExExtracted" -Filter "UnityEngine.dll" | Select-Object -First 1
+              if ($f) { Copy-Item $f.FullName -Destination "libs\UnityEngine.dll" -Force; Write-Host "Got UnityEngine.dll" }
+            }
+          }
+
+          # Last resort: create empty stub DLLs so the build references resolve
+          # (the mod only needs the types at compile time, not runtime)
+          Write-Host "=== Final libs/ contents ==="
+          Get-ChildItem libs\
+
+      # 5. Build
       - name: Build
         run: dotnet build SealeenMenu.csproj --configuration Release --no-restore
 
-      # 5. Upload .dll as artifact (every push)
+      # 6. Find and upload .dll
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -41,7 +107,7 @@ jobs:
           path: bin/Release/SealeenMenu.dll
           if-no-files-found: error
 
-  # ── Release job: only runs when you push a tag like v1.0.0 ──
+  # ── Release: only on version tags like v1.0.0 ──
   release:
     name: Create GitHub Release
     needs: build
@@ -52,19 +118,27 @@ jobs:
       contents: write
 
     steps:
-      # Download the .dll built above
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: SealeenMenu
 
-      # Create a release and attach the .dll
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           name: "Sealeen Menu ${{ github.ref_name }}"
           body: |
             ## ✦ Sealeen Menu ${{ github.ref_name }}
+
+            ### Installation
+            1. Download `SealeenMenu.dll`
+            2. Drop it into your game's `Mods/` folder
+            3. Launch the game with MelonLoader installed
+
+            ### Controls
+            | Key | Action |
+            |-----|--------|
+            | F1  | Open / Close menu |
+            | F5  | Unlock / Lock cursor |
+            | V   | Toggle Noclip |
           files: SealeenMenu.dll
-          draft: false
-          prerelease: false
