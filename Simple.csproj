@@ -2,10 +2,10 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <OutputType>Library</OutputType>
-    <AssemblyName>SimpleNoclip</AssemblyName>
+    <AssemblyName>Simple</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <OutputPath>bin\Release\</OutputPath>
   </PropertyGroup>
-
 <ItemGroup>
     <Reference Include="MelonLoader">
       <HintPath>References\MelonLoader.dll</HintPath>
