@@ -1,0 +1,70 @@
+name: Build SealeenMenu
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build .dll
+    runs-on: windows-latest
+
+    steps:
+      # 1. Checkout repo
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Setup .NET (supports net472)
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # 3. Restore NuGet packages (MelonLoader.Managed stub)
+      - name: Restore
+        run: dotnet restore SealeenMenu.csproj
+
+      # 4. Build in Release mode
+      - name: Build
+        run: dotnet build SealeenMenu.csproj --configuration Release --no-restore
+
+      # 5. Upload .dll as artifact (every push)
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: SealeenMenu
+          path: bin/Release/SealeenMenu.dll
+          if-no-files-found: error
+
+  # ── Release job: only runs when you push a tag like v1.0.0 ──
+  release:
+    name: Create GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    permissions:
+      contents: write
+
+    steps:
+      # Download the .dll built above
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SealeenMenu
+
+      # Create a release and attach the .dll
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "Sealeen Menu ${{ github.ref_name }}"
+          body: |
+            ## ✦ Sealeen Menu ${{ github.ref_name }}
+          files: SealeenMenu.dll
+          draft: false
+          prerelease: false
