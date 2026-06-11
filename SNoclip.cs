@@ -2,7 +2,7 @@ using MelonLoader;
 using UnityEngine;
 using Il2CppInterop.Runtime;
 
-[assembly: MelonInfo(typeof(SimpleNoclipMod.SimpleNoclip), "Sealeen's Menu", "1.0.0", "SealWorks")]
+[assembly: MelonInfo(typeof(SimpleNoclipMod.SimpleNoclip), "Sealeen Menu", "1.0.0", "SealenWorks")]
 [assembly: MelonGame(null, null)]
 
 namespace SimpleNoclipMod
@@ -47,12 +47,16 @@ namespace SimpleNoclipMod
         {
             if (!_showMenu) return;
 
-            // фикс
-            _windowRect = GUILayout.Window(999, _windowRect, (GUI.WindowFunction)DrawConsoleWindow, "Sealeen Menu");
+            // shitty
+            // fix
+            _windowRect = GUI.Window(999, _windowRect, (GUI.WindowFunction)DrawConsoleWindow, "Sealeen Menu");
         }
 
         private void DrawConsoleWindow(int windowID)
         {
+            // fix
+            GUILayout.BeginVertical();
+            
             GUILayout.Label("Noclip Speed:");
             _speedInputBuffer = GUILayout.TextField(_speedInputBuffer, 10);
 
@@ -61,17 +65,21 @@ namespace SimpleNoclipMod
                 if (float.TryParse(_speedInputBuffer, out float parsedSpeed))
                 {
                     _noclipSpeed = parsedSpeed;
-                    LoggerInstance.Msg($"local speed: {_noclipSpeed}");
+                    LoggerInstance.Msg($"Speed updated to: {_noclipSpeed}");
                 }
                 else
                 {
-                    LoggerInstance.Warning("not valid");
+                    LoggerInstance.Warning("Invalid number format!");
                 }
             }
 
             GUILayout.Space(10);
-            GUILayout.Label($"Noclip status: {(_flyEnabled ? "ENABLED" : "DISABLED")}");
+            GUILayout.Label($"Local SN Status: {(_flyEnabled ? "ENABLED" : "DISABLED")}");
+            GUILayout.Label("(Press 'V' to toggle fly)");
 
+            GUILayout.EndVertical();
+
+            // Позволяет перетаскивать окно
             GUI.DragWindow();
         }
 
@@ -84,7 +92,7 @@ namespace SimpleNoclipMod
 
             if (_localPlayer == null)
             {
-                LoggerInstance.Warning("Player with FPScontroller not found!");
+                LoggerInstance.Warning("false!");
                 return;
             }
 
@@ -95,7 +103,7 @@ namespace SimpleNoclipMod
                 _fpsController.enabled = !_flyEnabled;
             }
 
-            LoggerInstance.Msg($"status? : {_flyEnabled}");
+            LoggerInstance.Msg($"local status: {_flyEnabled}");
         }
 
         private void MoveInNoclip()
@@ -128,7 +136,6 @@ namespace SimpleNoclipMod
 
         private void FindPlayer()
         {
-            // фикс
             var monoBehaviourType = Il2CppType.Of<MonoBehaviour>();
             var objects = UnityEngine.Object.FindObjectsOfType(monoBehaviourType);
             
