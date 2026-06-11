@@ -1,4 +1,4 @@
-#-- name: Build MelonLoader Mod
+name: Build MelonLoader Mod
 
 on:
   push:
@@ -31,4 +31,3 @@ jobs:
       with:
         name: SealeenDevMenu-DLL
         path: bin/Release/Sealeen.dll
-#--]
