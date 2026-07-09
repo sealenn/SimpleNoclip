@@ -27,6 +27,7 @@ namespace SealeenMenu
 
         public override void OnUpdate()
         {
+        // change these keybinds for your needs
             if (Input.GetKeyDown(KeyCode.F1))
             {
                 _menuOpen = !_menuOpen;
@@ -51,11 +52,11 @@ namespace SealeenMenu
             {
                 _noclipEnabled = !_noclipEnabled;
 
-                // yo add ur own player here im just inserted my sample
                 if (_localPlayer == null)
                 {
                     _localPlayer = GameObject.FindWithTag("Player");
                     if (_localPlayer != null)
+                    // yo add ur own player here im just inserted my sample
                         _charController = _localPlayer.GetComponent<CharacterController>();
                 }
 
@@ -65,7 +66,7 @@ namespace SealeenMenu
                     _charController.enabled = !_noclipEnabled;
                 }
 
-                MelonLogger.Msg(_noclipEnabled ? "[Sealeen] Noclip ON" : "[Sealeen] Noclip OFF");
+                MelonLogger.Msg(_noclipEnabled ? "boolclip : Noclip ON" : "boolclip : Noclip OFF");
             }
 
             if (_noclipEnabled && _localPlayer != null)
@@ -90,6 +91,7 @@ namespace SealeenMenu
             }
         }
 
+// simple gui for ya
         private void InitStyles()
         {
             if (_stylesInitialized) return;
