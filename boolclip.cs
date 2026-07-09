@@ -1,7 +1,7 @@
 using MelonLoader;
 using UnityEngine;
 
-[assembly: MelonInfo(typeof(SealeenMenu.SealeenMenuMod), "Sealeen Menu", "1.0.0", "SealeenWorks")]
+[assembly: MelonInfo(typeof(SealeenMenu.SealeenMenuMod), "boolclip", "1.0.0", "Sealeen")]
 [assembly: MelonGame]
 
 namespace SealeenMenu
@@ -27,13 +27,11 @@ namespace SealeenMenu
 
         public override void OnUpdate()
         {
-            // F1 — toggle menu
             if (Input.GetKeyDown(KeyCode.F1))
             {
                 _menuOpen = !_menuOpen;
             }
 
-            // F5 — toggle cursor lock
             if (Input.GetKeyDown(KeyCode.F5))
             {
                 _cursorUnlocked = !_cursorUnlocked;
@@ -53,7 +51,7 @@ namespace SealeenMenu
             {
                 _noclipEnabled = !_noclipEnabled;
 
-                // Find player if not cached
+                // yo add ur own player here im just inserted my sample
                 if (_localPlayer == null)
                 {
                     _localPlayer = GameObject.FindWithTag("Player");
@@ -63,7 +61,7 @@ namespace SealeenMenu
 
                 if (_charController != null)
                 {
-                    // Disable CharacterController so physics doesn't interfere
+                    // controller change if you want ofc
                     _charController.enabled = !_noclipEnabled;
                 }
 
@@ -72,11 +70,10 @@ namespace SealeenMenu
 
             if (_noclipEnabled && _localPlayer != null)
             {
-                // Make sure CC is disabled
                 if (_charController != null && _charController.enabled)
                     _charController.enabled = false;
 
-                // Get camera for direction
+                // camera getter change too if needed 
                 Camera cam = Camera.main;
                 Transform moveRef = (cam != null) ? cam.transform : _localPlayer.transform;
 
@@ -98,7 +95,6 @@ namespace SealeenMenu
             if (_stylesInitialized) return;
             _stylesInitialized = true;
 
-            // Window background
             Texture2D windowBg = MakeTexture(2, 2, new Color(0.08f, 0.08f, 0.08f, 0.92f));
             _windowStyle = new GUIStyle(GUI.skin.window);
             _windowStyle.normal.background = windowBg;
@@ -108,12 +104,10 @@ namespace SealeenMenu
             _windowStyle.fontSize = 14;
             _windowStyle.alignment = TextAnchor.UpperCenter;
 
-            // Label
             _labelStyle = new GUIStyle(GUI.skin.label);
             _labelStyle.normal.textColor = Color.white;
             _labelStyle.fontSize = 12;
 
-            // Button
             Texture2D btnBg = MakeTexture(2, 2, new Color(0.2f, 0.55f, 0.9f, 1f));
             Texture2D btnHover = MakeTexture(2, 2, new Color(0.3f, 0.65f, 1f, 1f));
             _buttonStyle = new GUIStyle(GUI.skin.button);
@@ -123,7 +117,6 @@ namespace SealeenMenu
             _buttonStyle.fontStyle = FontStyle.Bold;
             _buttonStyle.fontSize = 12;
 
-            // TextField
             Texture2D fieldBg = MakeTexture(2, 2, new Color(0.18f, 0.18f, 0.18f, 1f));
             _textFieldStyle = new GUIStyle(GUI.skin.textField);
             _textFieldStyle.normal.background = fieldBg;
@@ -137,7 +130,7 @@ namespace SealeenMenu
 
             InitStyles();
 
-            _windowRect = GUI.Window(9001, _windowRect, DrawWindow, "[Sealeen's Menu]", _windowStyle);
+            _windowRect = GUI.Window(9001, _windowRect, DrawWindow, "boolclip settings", _windowStyle);
         }
 
         private void DrawWindow(int id)
@@ -146,7 +139,6 @@ namespace SealeenMenu
 
             GUILayout.Space(6);
 
-            // Noclip status label
             string noclipStatus = _noclipEnabled
                 ? "<color=#44ff88>● Status: ON</color>"
                 : "<color=#ff5555>● Status: OFF</color>";
@@ -157,9 +149,8 @@ namespace SealeenMenu
 
             GUILayout.Space(8);
 
-            // Speed row
             GUILayout.BeginHorizontal();
-            GUILayout.Label("Noclip Speed:", _labelStyle, GUILayout.Width(100));
+            GUILayout.Label("boolclip Speed:", _labelStyle, GUILayout.Width(100));
             _speedInput = GUILayout.TextField(_speedInput, _textFieldStyle, GUILayout.Width(80));
 
             if (GUILayout.Button("Apply", _buttonStyle, GUILayout.Width(65)))
@@ -167,11 +158,11 @@ namespace SealeenMenu
                 if (float.TryParse(_speedInput, out float parsed))
                 {
                     _noclipSpeed = parsed;
-                    MelonLogger.Msg($"[Sealeen's] Noclip speed set to {_noclipSpeed}");
+                    MelonLogger.Msg($"Boolclip : Noclip speed set to {_noclipSpeed}");
                 }
                 else
                 {
-                    MelonLogger.Warning("[Sealeen's] Invalid speed value");
+                    MelonLogger.Warning("Boolclip : Invalid speed value");
                 }
             }
             GUILayout.EndHorizontal();
@@ -181,7 +172,7 @@ namespace SealeenMenu
             GUIStyle hintStyle = new GUIStyle(_labelStyle);
             hintStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
             hintStyle.fontSize = 10;
-            GUILayout.Label("V — Toggle Noclip  |  F5 — Toggle Cursor", hintStyle);
+            GUILayout.Label("v is noclip", hintStyle);
         }
 
         private Texture2D MakeTexture(int w, int h, Color col)
